@@ -1,9 +1,10 @@
-#include <iostream>
+#include <ui/zapplication.h>
+#include <weinfer/zmainviewcontroller.h>
 
-using namespace std;
-
-int main() {
-
-    cout << "Hello" << endl;
-
+int main(int argc, char* argv[]) {
+    /**
+     * Main application loop
+     */
+    ZApplication(new MainViewController(argv), "Heartbeat", true,
+                 1920, 1080,1);
 }
