@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8)
 set(THIS_PROJECT weinfer)
-project(${THIS_PROJECT})
+project(${THIS_PROJECT} LANGUAGES CXX CUDA)
 
 option(LOCAL_ZPATH "Local zpath" OFF)
 
-file(GLOB_RECURSE sources src/*.cpp src/*.c src/*.h src/gui/*.cpp src/gui/*.c src/gui/*.h)
+file(GLOB_RECURSE sources src/*.cpp src/*.cu src/*.c src/*.h src/gui/*.cpp src/gui/*.c src/gui/*.h)
 file(GLOB_RECURSE data resources/*)
 include_directories(include)
 
@@ -16,8 +16,7 @@ add_executable(${THIS_PROJECT} ${sources} ${data}
         src/mainviewcontroller.cpp
         include/weinfer/zmainviewcontroller.h)
 
-
-target_compile_options(${THIS_PROJECT} PUBLIC -std=c++1y -Wall)
+target_compile_options(${THIS_PROJECT} PUBLIC -std=c++17)
 target_include_directories(${THIS_PROJECT} PUBLIC src/main)
 
 file(COPY ${data} DESTINATION resources)
@@ -33,24 +32,11 @@ add_custom_command(TARGET ${THIS_PROJECT} PRE_BUILD
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 
-list(APPEND PLUGINS "nvinfer")
-list(APPEND PLUGINS "nvonnxparser")
-list(APPEND PLUGINS "nvparsers")
-
-foreach(libName ${PLUGINS})
-    find_library(${libName}_lib NAMES ${libName} "/usr" PATH_SUFFIXES lib)
-    list(APPEND PLUGIN_LIBS "${${libName}_lib}")
-endforeach()
-
+# set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda)
+set(CMAKE_CUDA_ARCHITECTURES 75 CACHE STRING "CUDA architectures")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -use_fast_math")
 find_package(CUDA REQUIRED)
-
-# Adjust the path according to your TensorRT installation
-#set(TensorRT_ROOT /opt/TensorRT-8.6.1.6)
-#find_package(TensorRT REQUIRED)
-
-# Include directories
-include_directories(${CUDA_INCLUDE_DIRS})
-#include_directories(${TensorRT_INCLUDE_DIRS})
+include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 if(LOCAL_ZPATH)
 
